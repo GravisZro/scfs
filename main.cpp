@@ -10,6 +10,7 @@
 #include <grp.h> // group id
 #include <unistd.h>
 #include <time.h>
+#include <limits.h> // PATH_MAX
 
 // STL
 #include <system_error>
@@ -84,6 +85,23 @@ namespace circlefs
     }
   }
 
+  void clean_set(std::set<file_entry_t>& dir_set)
+  {
+    char path[PATH_MAX + 1];
+    struct stat info;
+
+    auto pos = dir_set.begin();
+    while(pos != dir_set.end())
+    {
+      // Linux only
+      sprintf(path, "/proc/%d", pos->pid);
+      if(stat( path, &info ) != posix::success_response || !(info.st_mode & S_IFDIR)) // if process
+        pos = dir_set.erase(pos);
+      else
+        ++pos;
+    }
+  }
+
 
   int readdir(const char* path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fileInfo)
   {
@@ -102,21 +120,34 @@ namespace circlefs
     {
       case Epath::root: // root directory (fill with usernames in use)
       {
-        for(const auto& dir : files)
-          filler(buf, ::getpwuid(dir.first)->pw_name, nullptr, offset);
+        auto pos = files.begin();
+        while(pos != files.end())
+        {
+          clean_set(pos->second);
+
+          if(pos->second.empty())
+            pos = files.erase(pos);
+          else
+          {
+            filler(buf, ::getpwuid(pos->first)->pw_name, nullptr, offset);
+            ++pos;
+          }
+        }
         break;
       }
 
       case Epath::directory: // list files in directory (based on username)
       {
-        auto matches = files.find(pw_ent->pw_uid);
-        if(matches == files.end()) // username has no files
+        auto pos = files.find(pw_ent->pw_uid);
+        if(pos == files.end()) // username has no files
         {
           posix::error(std::errc::no_such_file_or_directory);
           return 0 - errno;
         }
 
-        for(const file_entry_t& entry : matches->second)
+        clean_set(pos->second);
+
+        for(const file_entry_t& entry : pos->second)
         {
           statbuf.st_mode = entry.mode;
           filler(buf, entry.name.c_str(), &statbuf, offset);
