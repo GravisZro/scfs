@@ -214,14 +214,16 @@ namespace circlefs
         return posix::success();
 
       case Epath::file:
-        auto matches = files.find(pw_ent->pw_uid);
-        if(matches == files.end()) // username not registered
+        auto pos = files.find(pw_ent->pw_uid);
+        if(pos == files.end()) // username not registered
         {
           posix::error(std::errc::no_such_file_or_directory);
           break;
         }
 
-        for(const file_entry_t& entry : matches->second) // check every file
+        clean_set(pos->second);
+
+        for(const file_entry_t& entry : pos->second) // check every file
         {
           if(entry.name == filename)
           {
@@ -237,92 +239,6 @@ namespace circlefs
     }
     return 0 - errno;
   }
-
-  int open(const char* path, struct fuse_file_info* fileInfo)
-  {
-//    if(strcmp(path, hello_path) != 0)
-//      return posix::error(std::errc::no_such_file_or_directory);
-
-    if((fileInfo->flags & O_ACCMODE) != O_RDONLY)
-      return posix::error(std::errc::permission_denied);
-
-    return posix::success();
-  }
-
-
-  int read(const char* path,
-           char* buf,
-           size_t size,
-           off_t offset,
-           struct fuse_file_info* fileInfo)
-  {
-    return posix::success();
-    /*
-    try
-    {
-      std::ostringstream stream;
-      stream.rdbuf()->pubsetbuf(buf, size);
-
-      fs_element_ptr fs_pos = find_child(path); // find_child() may throw
-      if(fs_pos->mixer_element)
-      {
-        stream << fs_pos->mixer_element->string();
-        size = stream.str().size();
-      }
-    }
-    catch(errno_t err)
-    {
-      return err;
-    }
-
-    return (errno_t)size;
-    */
-  }
-
-  int write(const char* path,
-            const char* buf,
-            size_t size,
-            off_t offset,
-            struct fuse_file_info* fileInfo)
-  {
-    return posix::success();
-    //return posix::error(std::errc::permission_denied);
-    /*
-    try
-    {
-      fs_element_ptr fs_pos = find_child(path); // find_child() may throw
-      if(fs_pos->mixer_element)
-      {
-        std::stringstream stream;
-        snd_mixer_selem_channel_id_t channel = SND_MIXER_SCHN_UNKNOWN;
-        long value;
-
-        stream << buf; // buffer input
-        stream >> value; // extract numeric value
-
-        if(stream) // couldnt read a number (either NaN or empty stream)
-          throw(ERRNO_INVAL); // invalid, bail out!
-
-        if(stream.peek() == '%') // value is a percentage
-          value = (fs_pos->mixer_element->max - fs_pos->mixer_element->min) * value / 100;
-
-        if(buf[0] == '+' || buf[0] == '-') // value is relative
-          value += fs_pos->mixer_element->get_volume(channel);
-
-        // todo, determine which channel(s) to modify
-
-        fs_pos->mixer_element->set_volume(channel, value); // set value
-      }
-    }
-    catch(errno_t err)
-    {
-      return err;
-    }
-
-    return (errno_t)size;
-    */
-  }
-
 }
 
 
@@ -331,14 +247,8 @@ int main(int argc, char *argv[])
   static struct fuse_operations ops;
   ops.getdir    = nullptr;
   ops.utime     = nullptr;
-//  ops.read      = circlefs::read;
-//  ops.write     = circlefs::write;
-
-//  ops.getxattr  = circlefs::getxattr;
-//  ops.listxattr = circlefs::listxattr;
 
   ops.readdir   = circlefs::readdir;
-//  ops.create    = circlefs::create;
   ops.mknod     = circlefs::mknod;
   ops.getattr   = circlefs::getattr;
 
