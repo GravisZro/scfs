@@ -1,5 +1,3 @@
-
-// PLATFORM SPECIFIC
 #define FUSE_USE_VERSION 30
 #include <fuse.h>
 
@@ -17,12 +15,9 @@
 #include <map>
 #include <set>
 #include <string>
-#include <sstream>
 #include <cstdint>
 #include <cassert>
 #include <cstring>
-
-#include <iostream>
 
 namespace posix
 {
@@ -34,6 +29,13 @@ namespace posix
 
 namespace circlefs
 {
+  enum class Epath
+  {
+    root,
+    directory,
+    file,
+  };
+
   struct file_entry_t
   {
     bool operator < (const file_entry_t& other) const // for locating files by name
@@ -45,14 +47,6 @@ namespace circlefs
   };
 
   std::map<uid_t, std::set<file_entry_t>> files;
-
-
-  enum class Epath
-  {
-    root,
-    directory,
-    file,
-  };
 
   void deconstruct_path(const char* path, Epath& type, passwd*& pw_ent, std::string& filename)
   {
@@ -151,27 +145,22 @@ namespace circlefs
         {
           statbuf.st_mode = entry.mode;
           filler(buf, entry.name.c_str(), &statbuf, offset);
-          std::cout << "name: " << entry.name << std::endl;
         }
 
         break;
       }
 
       case Epath::file: // there must have been a parsing error (impossible situation)
-      {
         assert(false);
-      }
     }
 
     return posix::success();
   }
 
   int mknod(const char* path, mode_t mode, dev_t rdev)
-  //int create(const char* path, mode_t mode, struct fuse_file_info* fileInfo)
   {
-//    (void)fileInfo;
-    std::cout << "mode: " << std::oct << mode << std::dec << std::endl;
-    if(!(mode & S_IFSOCK) || mode & (/*S_IXUSR | S_IXGRP | S_IXOTH |*/ S_ISUID | S_ISGID)) // if not a socket or execution flag is set
+    (void)rdev;
+    if(!(mode & S_IFSOCK) || mode & (S_ISUID | S_ISGID)) // if not a socket or execution flag is set
       return posix::error(std::errc::permission_denied);
 
     Epath type;
@@ -240,7 +229,6 @@ namespace circlefs
     return 0 - errno;
   }
 }
-
 
 int main(int argc, char *argv[])
 {
