@@ -96,7 +96,6 @@ namespace circlefs
     }
   }
 
-
   int readdir(const char* path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fileInfo)
   {
     (void)fileInfo;
@@ -233,8 +232,6 @@ namespace circlefs
 int main(int argc, char *argv[])
 {
   static struct fuse_operations ops;
-  ops.getdir    = nullptr;
-  ops.utime     = nullptr;
 
   ops.readdir   = circlefs::readdir;
   ops.mknod     = circlefs::mknod;
