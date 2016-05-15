@@ -97,6 +97,18 @@ namespace circlefs
     }
   }
 
+  struct timespec get_oldest(std::set<file_entry_t>& dir_set)
+  {
+    struct timespec oldest = dir_set.begin()->stat.st_atim;
+    auto pos = dir_set.begin();
+    while(pos != dir_set.end())
+    {
+      if(pos->stat.st_atim.tv_sec < oldest.tv_sec)
+        oldest.tv_sec = pos->stat.st_atim.tv_sec;
+    }
+    return oldest;
+  }
+
   int readdir(const char* path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fileInfo)
   {
     (void)fileInfo;
@@ -184,9 +196,9 @@ namespace circlefs
         stat.st_uid = pw_ent->pw_uid;
         stat.st_gid = pw_ent->pw_gid;
         stat.st_mode = mode;
-        stat.st_atim =
         stat.st_ctim =
-        stat.st_mtim = time;
+        stat.st_mtim =
+        stat.st_atim = time;
 
         dir.insert({ filename, ctx->pid, stat });
         break;
@@ -248,9 +260,9 @@ int main(int argc, char *argv[])
 {
   static struct fuse_operations ops;
 
-  ops.readdir   = circlefs::readdir;
-  ops.mknod     = circlefs::mknod;
-  ops.getattr   = circlefs::getattr;
+  ops.readdir = circlefs::readdir;
+  ops.mknod   = circlefs::mknod;
+  ops.getattr = circlefs::getattr;
 
   return fuse_main(argc, argv, &ops, nullptr);
 }
