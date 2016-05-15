@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <cassert>
 #include <cstring>
+#include <iostream>
 
 namespace posix
 {
@@ -42,8 +43,8 @@ namespace circlefs
       { return name < other.name; }
 
     std::string name;
-    mode_t mode;
     pid_t pid;
+    struct stat stat;
   };
 
   std::map<uid_t, std::set<file_entry_t>> files;
@@ -103,7 +104,6 @@ namespace circlefs
     filler(buf, "..", nullptr, 0);
 
     Epath type;
-    struct stat statbuf;
     passwd* pw_ent;
     std::string filename;
 
@@ -141,10 +141,7 @@ namespace circlefs
         clean_set(pos->second);
 
         for(const file_entry_t& entry : pos->second)
-        {
-          statbuf.st_mode = entry.mode;
-          filler(buf, entry.name.c_str(), &statbuf, offset);
-        }
+          filler(buf, entry.name.c_str(), &entry.stat, offset);
 
         break;
       }
@@ -165,6 +162,9 @@ namespace circlefs
     Epath type;
     passwd* pw_ent = nullptr;
     std::string filename;
+    struct stat stat = {};
+    struct timespec time;
+    clock_gettime(CLOCK_REALTIME, &time);
 
     deconstruct_path(path, type, pw_ent, filename);
 
@@ -177,10 +177,18 @@ namespace circlefs
       case Epath::file: // create a node file!
         fuse_context* ctx = fuse_get_context();
         auto& dir = files[pw_ent->pw_uid];
-        auto entry = dir.find({ filename, 0, 0 });
+        auto entry = dir.find({ filename, 0, stat });
         if(entry != dir.end())
           dir.erase(entry);
-        dir.insert({ filename, mode, ctx->pid });
+
+        stat.st_uid = pw_ent->pw_uid;
+        stat.st_gid = pw_ent->pw_gid;
+        stat.st_mode = mode;
+        stat.st_atim =
+        stat.st_ctim =
+        stat.st_mtim = time;
+
+        dir.insert({ filename, ctx->pid, stat });
         break;
     }
     return posix::success();
@@ -196,10 +204,18 @@ namespace circlefs
 
     switch(type)
     {
-      case Epath::root:      // root directory
-      case Epath::directory: // username (always exists)
+      case Epath::root:      // root directory (always exists)
         statbuf->st_mode = S_IFDIR | S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR | S_IXGRP | S_IXOTH;
-        return posix::success();
+        posix::success();
+        break;
+
+      case Epath::directory: // username (exists if username exists)
+        statbuf->st_mode = S_IFDIR | S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR | S_IXGRP | S_IXOTH;
+        if(pw_ent == nullptr)
+          posix::error(std::errc::no_such_file_or_directory);
+        else
+          posix::success();
+        break;
 
       case Epath::file:
         auto pos = files.find(pw_ent->pw_uid);
@@ -215,10 +231,9 @@ namespace circlefs
         {
           if(entry.name == filename)
           {
-            statbuf->st_uid = pw_ent->pw_uid;
-            statbuf->st_gid = pw_ent->pw_gid;
-            statbuf->st_mode = entry.mode;
-            return posix::success();
+            *statbuf = entry.stat;
+            posix::success();
+            return 0 - errno;
           }
         }
 
