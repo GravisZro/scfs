@@ -96,7 +96,7 @@ namespace circlefs
         ++pos;
     }
   }
-
+/*
   struct timespec get_oldest(std::set<file_entry_t>& dir_set)
   {
     struct timespec oldest = dir_set.begin()->stat.st_atim;
@@ -108,7 +108,7 @@ namespace circlefs
     }
     return oldest;
   }
-
+*/
   int readdir(const char* path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fileInfo)
   {
     (void)fileInfo;
