@@ -16,7 +16,7 @@ example:
 
 /usr/bin/mixerd may now create one or more socket files inside directory /mc/audio/
 
-  Note: subdirectories are automatically created and destroyed.  Daemons can only create socket files.
+  Note: Directories are automatically created and destroyed.  Daemons can only create socket files.
 
 ## Clients
 A client only needs to check and open if a specific socket for their daemon exists.
