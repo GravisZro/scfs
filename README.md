@@ -2,10 +2,12 @@
 Circlefs is a FUSE VFS that manages socket files for processes.  It's intended use is to provide a permissions based socket interface between daemons and client programs.
 
 # Setup
-Simply execute circlefs as root and specify the mount directory.
+Simply execute circlefs and specify the mount directory.
 
 example:
 > sudo circlefs /mc
+
+Note: User must have permissions to the mount directory.
 
 # How To Use
 ## Daemons
