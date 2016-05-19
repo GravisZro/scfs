@@ -20,5 +20,5 @@ example:
 
   Note: Directories are automatically created and destroyed.  Daemons can only create socket files.
 
-## Clients
-A client only needs to check and open if a specific socket for their daemon exists.
+## Agents
+An agent only needs to try to open a specific socket for their daemon.
