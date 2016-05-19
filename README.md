@@ -16,7 +16,7 @@ A daemon must create a socket file in a subdirectory matching the username used 
 example:
 > sudo -u audio /usr/bin/audiomixerd
 
-/usr/bin/mixerd may now create one or more socket files inside directory /mc/audio/
+/usr/bin/audiomixerd may now create one or more socket files inside directory /mc/audio/
 
   Note: Directories are automatically created and destroyed.  Daemons can only create socket files.
 
