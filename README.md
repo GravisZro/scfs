@@ -1,5 +1,5 @@
 # Circle Filesystem
-Circlefs is a FUSE VFS that manages socket files for processes.  It's intended use is to provide a permissions based socket interface between daemons and client programs.
+Circlefs is a FUSE VFS that manages socket files for processes.  It's intended use is to provide a permissions based [IPC](https://en.wikipedia.org/wiki/Inter-process_communication) interface between daemons and client programs.
 
 # Setup
 Simply execute circlefs and specify the mount directory.
