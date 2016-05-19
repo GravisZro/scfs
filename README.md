@@ -14,7 +14,7 @@ Note: User must have permissions to the mount directory.
 A daemon must create a socket file in a subdirectory matching the username used to execute the daemon.
 
 example:
-> sudo -u audio /usr/bin/mixerd
+> sudo -u audio /usr/bin/audiomixerd
 
 /usr/bin/mixerd may now create one or more socket files inside directory /mc/audio/
 
