@@ -1,3 +1,4 @@
+MCFS is a component of [System X](https://github.com/GravisZro/SystemX)
 # Magic Circle Filesystem
 MCFS is a FUSE VFS that manages socket files for processes.  It's intended use is to provide a permissions based [IPC](https://en.wikipedia.org/wiki/Inter-process_communication) interface between service daemons and client programs.
 
