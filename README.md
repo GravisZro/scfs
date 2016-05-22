@@ -1,17 +1,17 @@
-# Circle Filesystem
-Circlefs is a FUSE VFS that manages socket files for processes.  It's intended use is to provide a permissions based [IPC](https://en.wikipedia.org/wiki/Inter-process_communication) interface between daemons and agent programs.
+# Magic Circle Filesystem
+MCFS is a FUSE VFS that manages socket files for processes.  It's intended use is to provide a permissions based [IPC](https://en.wikipedia.org/wiki/Inter-process_communication) interface between daemons and agent programs.
 
 # Setup
-Simply execute circlefs and specify the mount directory.
+Simply execute mcfs and specify the mount directory.
 
 example:
-> sudo circlefs /mc
+> sudo mcfs /mc
 
 Note: User must have permissions to the mount directory.
 
 # How To Use
 ## Daemons
-A daemon must create a socket file in a subdirectory matching the username used to execute the daemon.
+A daemon must create a socket file in a subdirectory matching the username used to execute the daemon.  The username used must also be part of the "services" group.
 
 example:
 > sudo -u audio /usr/bin/audiomixerd
