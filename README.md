@@ -11,7 +11,8 @@ Note: User must have permissions to the mount directory.
 
 # How To Use
 ## Daemons
-A daemon must create a socket file in a subdirectory matching the username used to execute the daemon.  The username used must also be part of the "services" group.
+A daemon must create a socket file in a subdirectory matching the username used to execute the daemon.
+Tentative requirement: The username used must be part of the "services" group.
 
 example:
 > sudo -u audio /usr/bin/audiomixerd
