@@ -1,5 +1,6 @@
 TEMPLATE = app
-CONFIG = c++11
+CONFIG -= qt
+CONFIG += c++11
 
 LIBS += -lfuse
 
