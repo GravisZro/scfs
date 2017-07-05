@@ -11,22 +11,15 @@
 #include <limits.h> // PATH_MAX
 
 // STL
-#include <system_error>
 #include <map>
 #include <set>
 #include <string>
 #include <cstdint>
 #include <cassert>
 #include <cstring>
-#include <iostream>
 
-namespace posix
-{
-  constexpr int success_response = 0;
-  constexpr int error_response = -1;
-  static inline int success(void) noexcept { return errno = success_response; }
-  static inline int error(std::errc err) noexcept { errno = int(err); return error_response; }
-}
+// PDTK
+#include <cxxutils/error_helpers.h>
 
 namespace circlefs
 {
@@ -145,10 +138,7 @@ namespace circlefs
       {
         auto pos = files.find(pw_ent->pw_uid);
         if(pos == files.end()) // username has no files
-        {
-          posix::error(std::errc::no_such_file_or_directory);
-          return 0 - errno;
-        }
+          return posix::error(std::errc::no_such_file_or_directory);
 
         clean_set(pos->second);
 
@@ -218,24 +208,18 @@ namespace circlefs
     {
       case Epath::root:      // root directory (always exists)
         statbuf->st_mode = S_IFDIR | S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR | S_IXGRP | S_IXOTH;
-        posix::success();
         break;
 
       case Epath::directory: // username (exists if username exists)
         statbuf->st_mode = S_IFDIR | S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR | S_IXGRP | S_IXOTH;
         if(pw_ent == nullptr)
-          posix::error(std::errc::no_such_file_or_directory);
-        else
-          posix::success();
+          return posix::error(std::errc::no_such_file_or_directory);
         break;
 
       case Epath::file:
         auto pos = files.find(pw_ent->pw_uid);
         if(pos == files.end()) // username not registered
-        {
-          posix::error(std::errc::no_such_file_or_directory);
-          break;
-        }
+          return posix::error(std::errc::no_such_file_or_directory);
 
         clean_set(pos->second);
 
@@ -244,15 +228,13 @@ namespace circlefs
           if(entry.name == filename)
           {
             *statbuf = entry.stat;
-            posix::success();
-            return 0 - errno;
+            return posix::success();
           }
         }
 
-        posix::error(std::errc::no_such_file_or_directory); // no file matched
-        break;
+        return posix::error(std::errc::no_such_file_or_directory); // no file matched
     }
-    return 0 - errno;
+    return posix::success();
   }
 }
 

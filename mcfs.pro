@@ -12,4 +12,6 @@ QMAKE_CXXFLAGS += -pipe -Os -fno-exceptions -fno-rtti -fno-threadsafe-statics
 #QMAKE_CXXFLAGS += -fno-rtti
 #QMAKE_CXXFLAGS += -fno-threadsafe-statics
 
+INCLUDEPATH += ../pdtk
+
 SOURCES += main.cpp
