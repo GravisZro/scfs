@@ -22,10 +22,10 @@
 
 namespace posix
 {
-  static const int success_response = 0;
-  static const int error_response = -1;
-  static int success(void) { errno = 0; return success_response; }
-  static int error(std::errc err) { errno = *reinterpret_cast<int*>(&err); return error_response; }
+  constexpr int success_response = 0;
+  constexpr int error_response = -1;
+  static inline int success(void) noexcept { return errno = success_response; }
+  static inline int error(std::errc err) noexcept { errno = int(err); return error_response; }
 }
 
 namespace circlefs
@@ -49,7 +49,7 @@ namespace circlefs
 
   std::map<uid_t, std::set<file_entry_t>> files;
 
-  void deconstruct_path(const char* path, Epath& type, passwd*& pw_ent, std::string& filename)
+  void deconstruct_path(const char* path, Epath& type, passwd*& pw_ent, std::string& filename) noexcept
   {
     const char* dir_pos = std::strchr(path, '/') + 1;
     const char* file_pos = std::strchr(dir_pos, '/');
@@ -80,7 +80,7 @@ namespace circlefs
     }
   }
 
-  void clean_set(std::set<file_entry_t>& dir_set)
+  void clean_set(std::set<file_entry_t>& dir_set) noexcept
   {
     char path[PATH_MAX + 1];
     struct stat info;
@@ -109,7 +109,7 @@ namespace circlefs
     return oldest;
   }
 */
-  int readdir(const char* path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fileInfo)
+  int readdir(const char* path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fileInfo) noexcept
   {
     (void)fileInfo;
     filler(buf, "." , nullptr, 0);
@@ -165,7 +165,7 @@ namespace circlefs
     return posix::success();
   }
 
-  int mknod(const char* path, mode_t mode, dev_t rdev)
+  int mknod(const char* path, mode_t mode, dev_t rdev) noexcept
   {
     (void)rdev;
     if(!(mode & S_IFSOCK) || mode & (S_ISUID | S_ISGID)) // if not a socket or execution flag is set
@@ -206,7 +206,7 @@ namespace circlefs
     return posix::success();
   }
 
-  int getattr(const char* path, struct stat* statbuf)
+  int getattr(const char* path, struct stat* statbuf) noexcept
   {
     Epath type;
     passwd* pw_ent = nullptr;
