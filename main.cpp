@@ -177,6 +177,9 @@ namespace circlefs
 
     deconstruct_path(path, type, pw_ent, filename);
 
+    if(pw_ent->pw_uid != fuse_get_context()->uid)
+      return posix::errorcode(std::errc::invalid_argument);
+
     switch(type)
     {
       case Epath::root: // root directory - cannot make root!
