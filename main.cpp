@@ -88,6 +88,7 @@ namespace circlefs
     auto pos = dir_set.begin();
     while(pos != dir_set.end())
     {
+//      ::procstat()
       // Linux only
       sprintf(path, "/proc/%d", pos->pid);
       if(stat( path, &info ) != posix::success || !(info.st_mode & S_IFDIR)) // if process
@@ -177,7 +178,8 @@ namespace circlefs
 
     deconstruct_path(path, type, pw_ent, filename);
 
-    if(pw_ent->pw_uid != fuse_get_context()->uid)
+    if(fuse_get_context()->uid && // if NOT root AND
+       pw_ent->pw_uid != fuse_get_context()->uid) // UID doesn't match
       return posix::errorcode(std::errc::invalid_argument);
 
     switch(type)
