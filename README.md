@@ -21,4 +21,4 @@ example:
 <br>Note: Directories are automatically created and destroyed.  Daemons can only create socket files.
 
 ## Client Programs
-An client program only needs to try to open a specific socket for their daemon.
+A client program only needs to try to open a specific socket for their daemon.
