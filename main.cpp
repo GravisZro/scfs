@@ -134,7 +134,9 @@ namespace circlefs
             pos = files.erase(pos);
           else
           {
-            filler(buf, ::getpwuid(pos->first)->pw_name, nullptr, offset);
+            struct passwd* p = ::getpwuid(pos->first);
+            if(p != nullptr)
+              filler(buf, p->pw_name, nullptr, offset);
             ++pos;
           }
         }
