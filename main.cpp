@@ -62,7 +62,7 @@ namespace circlefs
     }
     else
     {
-      if(file_pos == nullptr)
+      if(file_pos == NULL)
       {
         dir = dir_pos;
         filename.clear();
@@ -89,7 +89,7 @@ namespace circlefs
     {
 //      ::procstat()
       // Linux only
-      sprintf(path, "/proc/%d", pos->pid);
+      std::snprintf(path, PATH_MAX, "/proc/%d", pos->pid);
       if(stat( path, &info ) != posix::success || !(info.st_mode & S_IFDIR)) // if process
         pos = dir_set.erase(pos);
       else
@@ -112,8 +112,8 @@ namespace circlefs
   int readdir(const char* path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fileInfo) noexcept
   {
     (void)fileInfo;
-    filler(buf, "." , nullptr, 0);
-    filler(buf, "..", nullptr, 0);
+    filler(buf, "." , NULL, 0);
+    filler(buf, "..", NULL, 0);
 
     Epath type;
     passwd* pw_ent;
@@ -135,8 +135,8 @@ namespace circlefs
           else
           {
             struct passwd* p = ::getpwuid(pos->first);
-            if(p != nullptr)
-              filler(buf, p->pw_name, nullptr, offset);
+            if(p != NULL)
+              filler(buf, p->pw_name, NULL, offset);
             ++pos;
           }
         }
@@ -171,7 +171,7 @@ namespace circlefs
       return posix::errorcode(std::errc::permission_denied);
 
     Epath type;
-    passwd* pw_ent = nullptr;
+    passwd* pw_ent = NULL;
     std::string filename;
     struct stat stat = {};
     struct timespec time;
@@ -212,7 +212,7 @@ namespace circlefs
   int getattr(const char* path, struct stat* statbuf) noexcept
   {
     Epath type;
-    passwd* pw_ent = nullptr;
+    passwd* pw_ent = NULL;
     std::string filename;
 
     deconstruct_path(path, type, pw_ent, filename);
@@ -266,5 +266,5 @@ int main(int argc, char *argv[])
   ops.mknod   = circlefs::mknod;
   ops.getattr = circlefs::getattr;
 
-  return fuse_main(argc, argv, &ops, nullptr);
+  return fuse_main(argc, argv, &ops, NULL);
 }
