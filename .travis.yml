@@ -11,7 +11,7 @@ matrix:
           packages: ['g++-4.9', 'libfuse-dev']
       env:
         - COMPILER=g++-4.9
-	- LDFLAGS=-lfuse
+        - LDFLAGS=-lfuse
 
     - os: linux
       dist: trusty
@@ -22,7 +22,7 @@ matrix:
           packages: ['g++-5', 'libfuse-dev']
       env:
         - COMPILER=g++-5
-	- LDFLAGS=-lfuse
+        - LDFLAGS=-lfuse
 
     - os: linux
       dist: trusty
@@ -33,7 +33,7 @@ matrix:
           packages: ['g++-6', 'libfuse-dev']
       env:
         - COMPILER=g++-6
-	- LDFLAGS=-lfuse
+        - LDFLAGS=-lfuse
 
     - os: linux
       dist: trusty
@@ -44,7 +44,7 @@ matrix:
           packages: ['g++-7', 'libfuse-dev']
       env:
         - COMPILER=g++-7
-	- LDFLAGS=-lfuse
+        - LDFLAGS=-lfuse
 
     - os: linux
       dist: trusty
@@ -55,7 +55,7 @@ matrix:
           packages: ['clang-3.9', 'libstdc++-4.9-dev', 'libfuse-dev']
       env:
         - COMPILER=clang++-3.9
-	- LDFLAGS=-lfuse
+        - LDFLAGS=-lfuse
 
     - os: linux
       dist: trusty
@@ -66,7 +66,7 @@ matrix:
           packages: ['clang-4.0', 'libstdc++-4.9-dev', 'libfuse-dev']
       env:
         - COMPILER=clang++-4.0
-	- LDFLAGS=-lfuse
+        - LDFLAGS=-lfuse
 
     - os: osx
       osx_image: xcode8.3
@@ -76,7 +76,7 @@ matrix:
         - EXT_INCLUDE_PATH="-I/usr/local/include/osxfuse/fuse"
         - IMAGE="FUSE for macOS"
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
-	- LDFLAGS=-losxfuse
+        - LDFLAGS=-losxfuse
 
     - os: osx
       osx_image: xcode9
@@ -86,7 +86,7 @@ matrix:
         - EXT_INCLUDE_PATH="-I/usr/local/include/osxfuse/fuse"
         - IMAGE="FUSE for macOS"
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
-	- LDFLAGS=-losxfuse
+        - LDFLAGS=-losxfuse
 
 install:
   - if [ $TRAVIS_OS_NAME = "osx" ]; then curl -L -# -C - -o "$IMAGE.dmg" $IMAGEURL;ls -lh "$IMAGE.dmg";sudo hdiutil attach "$IMAGE.dmg";sudo installer -package "/Volumes/$IMAGE/$IMAGE.pkg" -target /;sudo hdiutil detach "/Volumes/$IMAGE"; fi
