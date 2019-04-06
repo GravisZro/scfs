@@ -40,8 +40,7 @@ ifneq ($(shell getconf _XOPEN_VERSION 1>/dev/null 2>&1; echo $$?),0)
 endif
 
 INCLUDE_PATH  = -I$(SOURCE_PATH)
-DEFINES       = -D_FILE_OFFSET_BITS=64
-CFLAGS        = -pipe -g -Os -Wall -W -fPIC $(LTO_FLAG) $(DEFINES) $(INCLUDE_PATH)
+CFLAGS        = -pipe -g -Os -Wall -W -fPIC $(LTO_FLAG) -D_FILE_OFFSET_BITS=64 $(DEFINES) $(INCLUDE_PATH)
 CXXFLAGS      = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS       = $(STATICLIB) $(LTO_FLAG) -lfuse
 
