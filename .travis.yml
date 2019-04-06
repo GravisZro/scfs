@@ -11,8 +11,8 @@ matrix:
           packages: ['g++-4.9', 'libfuse-dev']
       env:
         - COMPILER=g++-4.9
-        - LDFLAGS=-flto
-        - CFLAGS=-flto
+        - CFLAGS="-flto"
+        - LDFLAGS="-flto"
 
     - os: linux
       dist: trusty
@@ -23,8 +23,8 @@ matrix:
           packages: ['g++-5', 'libfuse-dev']
       env:
         - COMPILER=g++-5
-        - LDFLAGS=-flto
-        - CFLAGS=-flto
+        - CFLAGS="-flto"
+        - LDFLAGS="-flto"
 
     - os: linux
       dist: trusty
@@ -35,8 +35,8 @@ matrix:
           packages: ['g++-6', 'libfuse-dev']
       env:
         - COMPILER=g++-6
-        - LDFLAGS=-flto
-        - CFLAGS=-flto
+        - CFLAGS="-flto"
+        - LDFLAGS="-flto"
 
     - os: linux
       dist: trusty
@@ -47,8 +47,8 @@ matrix:
           packages: ['g++-7', 'libfuse-dev']
       env:
         - COMPILER=g++-7
-        - LDFLAGS=-flto
-        - CFLAGS=-flto
+        - CFLAGS="-flto"
+        - LDFLAGS="-flto"
 
     - os: linux
       dist: trusty
@@ -79,8 +79,8 @@ matrix:
       compiler: clang
       env:
         - COMPILER=clang++
-        - CFLAGS=-flto -I/usr/local/include/osxfuse/fuse
-        - LDFLAGS=-flto
+        - CFLAGS="-flto -I/usr/local/include/osxfuse/fuse"
+        - LDFLAGS="-flto"
         - IMAGE="FUSE for macOS"
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
@@ -89,8 +89,8 @@ matrix:
       compiler: clang
       env:
         - COMPILER=clang++
-        - CFLAGS=-flto -I/usr/local/include/osxfuse/fuse
-        - LDFLAGS=-flto
+        - CFLAGS="-flto -I/usr/local/include/osxfuse/fuse"
+        - LDFLAGS="-flto"
         - IMAGE="FUSE for macOS"
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
@@ -99,5 +99,5 @@ install:
 git:
   submodules: true
 script:
-  - make -f Makefile.travis CXX=$COMPILER CFLAGS=$CFLAGS LDFLAGS=$LDFLAGS DEFINES=-D__CONTINUOUS_INTEGRATION__ VERBOSE=true 
+  - make -f Makefile.travis CXX=$COMPILER CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" DEFINES=-D__CONTINUOUS_INTEGRATION__ VERBOSE=true 
 
