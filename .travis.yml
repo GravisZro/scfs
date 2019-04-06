@@ -79,8 +79,8 @@ matrix:
       compiler: clang
       env:
         - COMPILER=clang++
-        - CFLAGS=-flto
-        - LDFLAGS=-flto -I/usr/local/include/osxfuse/fuse
+        - CFLAGS=-flto -I/usr/local/include/osxfuse/fuse
+        - LDFLAGS=-flto
         - IMAGE="FUSE for macOS"
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
@@ -89,8 +89,8 @@ matrix:
       compiler: clang
       env:
         - COMPILER=clang++
-        - CFLAGS=-flto
-        - LFLAG=-flto -I/usr/local/include/osxfuse/fuse
+        - CFLAGS=-flto -I/usr/local/include/osxfuse/fuse
+        - LDFLAGS=-flto
         - IMAGE="FUSE for macOS"
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
