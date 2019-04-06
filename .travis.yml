@@ -67,7 +67,7 @@ matrix:
       compiler: clang
       env:
         - COMPILER=clang++
-        - INCPATH="-I/usr/local/include/osxfuse/fuse"
+        - EXT_INCLUDE_PATH="-I/usr/local/include/osxfuse/fuse"
         - IMAGE="FUSE for macOS"
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
@@ -76,7 +76,7 @@ matrix:
       compiler: clang
       env:
         - COMPILER=clang++
-        - INCPATH="-I/usr/local/include/osxfuse/fuse"
+        - EXT_INCLUDE_PATH="-I/usr/local/include/osxfuse/fuse"
         - IMAGE="FUSE for macOS"
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
@@ -86,5 +86,5 @@ git:
   submodules: true
 script:
   - ls -la put
-  - make -f Makefile.travis CXX=$COMPILER EXTINCPATH="$INCPATH" DEFINES=-D__CONTINUOUS_INTEGRATION__ VERBOSE=true 
+  - make -f Makefile.travis CXX=$COMPILER EXT_INCLUDE_PATH="$EXT_INCLUDE_PATH" DEFINES=-D__CONTINUOUS_INTEGRATION__ VERBOSE=true 
 
