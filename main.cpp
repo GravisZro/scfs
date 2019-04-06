@@ -223,13 +223,13 @@ namespace scfs
     {
       case Epath::root:      // root directory (always exists)
 #if defined(__darwin__) || defined(BSD)
-        statbuf.st_ctimespec =
-        statbuf.st_mtimespec =
-        statbuf.st_atimespec = inittime;
+        statbuf->st_ctimespec =
+        statbuf->st_mtimespec =
+        statbuf->st_atimespec = inittime;
 #elif defined(__linux__)
-        statbuf.st_ctim =
-        statbuf.st_mtim =
-        statbuf.st_atim = inittime;
+        statbuf->st_ctim =
+        statbuf->st_mtim =
+        statbuf->st_atim = inittime;
 #else
 # error unknown OS
 #endif
