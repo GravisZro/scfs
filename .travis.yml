@@ -99,6 +99,6 @@ install:
 git:
   submodules: true
 script:
-  - ls -la
+  - ls -la put
   - make -f Makefile.travis CXX=$COMPILER CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" DEFINES=-D__CONTINUOUS_INTEGRATION__ VERBOSE=true 
 
