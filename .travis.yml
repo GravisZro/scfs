@@ -86,8 +86,6 @@ matrix:
 	- IMAGE=osxfuse-3.8.3
 	- IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
-install:
-  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install foo; else brew install bar; fi
 git:
   submodules: true
 script:
