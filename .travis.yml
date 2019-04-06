@@ -74,8 +74,8 @@ matrix:
       env:
         - COMPILER=clang++
         - LTO_FLAG=-flto
-	- IMAGE=osxfuse-3.8.3
-	- IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
+        - IMAGE=osxfuse-3.8.3
+        - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
     - os: osx
       osx_image: xcode9
@@ -83,8 +83,8 @@ matrix:
       env:
         - COMPILER=clang++
         - LTO_FLAG=-flto
-	- IMAGE=osxfuse-3.8.3
-	- IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
+        - IMAGE=osxfuse-3.8.3
+        - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
 git:
   submodules: true
