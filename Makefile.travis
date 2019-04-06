@@ -26,10 +26,6 @@ ifndef BUILD_PATH
   BUILD_PATH=$(SOURCE_PATH)/bin
 endif
 
-ifndef LTO_FLAG
-  LTO_FLAG=-flto
-endif
-
 ifneq ($(shell getconf _XOPEN_VERSION 1>/dev/null 2>&1; echo $$?),0)
   OUTPUTFILE:=posix_features.h
   TESTLIST:=atexit memmove strerror strnlen atoll strtof strtold strtoll strtoul strtoull snprintf faccessat fexecve fchdir seteuid setegid sigqueue killpg
@@ -40,9 +36,10 @@ ifneq ($(shell getconf _XOPEN_VERSION 1>/dev/null 2>&1; echo $$?),0)
 endif
 
 INCLUDE_PATH  = -I$(SOURCE_PATH)
-CFLAGS        = -pipe -g -Os -Wall -W -fPIC $(LTO_FLAG) -D_FILE_OFFSET_BITS=64 $(DEFINES) $(INCLUDE_PATH)
-CXXFLAGS      = $(CFLAGS) -fno-exceptions -fno-rtti
-LDFLAGS       = $(STATICLIB) $(LTO_FLAG) -lfuse
+IOT_DEFINES   = $(DEFINES) -D_FILE_OFFSET_BITS=64
+INT_CFLAGS    = $(CFLAGS) $(INT_DEFINES) -pipe -g -Os -Wall -W -fPIC $(INCLUDE_PATH)
+INT_CXXFLAGS  = $(INT_CFLAGS) $(CXXFLAGS) -fno-exceptions -fno-rtti
+INT_LDFLAGS   = $(STATICLIB) $(LDFLAGS) -lfuse
 
 TARGET        = scfs
 SOURCES       = main.cpp
@@ -55,15 +52,15 @@ SOURCES := $(foreach f,$(SOURCES),$(SOURCE_PATH)/$(f))
 
 $(BUILD_PATH)/%.o: $(SOURCE_PATH)/%.cpp
 	@echo [Compiling]: $<
-	$(QUIET) $(CXX) -c -o $@ $< $(CXXSTANDARD) $(CXXFLAGS)
+	$(QUIET) $(CXX) -c -o $@ $< $(CXXSTANDARD) $(INT_CXXFLAGS)
 
 $(BUILD_PATH)/%.o: $(SOURCE_PATH)/%.c
 	@echo [Compiling]: $<
-	$(QUIET) $(CC) -c -o $@ $< $(CSTANDARD) $(CFLAGS)
+	$(QUIET) $(CC) -c -o $@ $< $(INT_CSTANDARD) $(INT_CFLAGS)
 
 $(TARGET): OUTPUT_DIR $(OBJS)
 	@echo [ Linking ]: $@
-	$(QUIET) $(CXX) -o $@ $(OBJS) $(LDFLAGS)
+	$(QUIET) $(CXX) -o $@ $(OBJS) $(INT_LDFLAGS)
 
 OUTPUT_DIR:
 	$(QUIET) mkdir -p $(BUILD_PATH)

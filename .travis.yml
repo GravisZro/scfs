@@ -11,7 +11,8 @@ matrix:
           packages: ['g++-4.9', 'libfuse-dev']
       env:
         - COMPILER=g++-4.9
-        - LTO_FLAG=-flto
+        - LDFLAGS=-flto
+        - CFLAGS=-flto
 
     - os: linux
       dist: trusty
@@ -22,7 +23,8 @@ matrix:
           packages: ['g++-5', 'libfuse-dev']
       env:
         - COMPILER=g++-5
-        - LTO_FLAG=-flto
+        - LDFLAGS=-flto
+        - CFLAGS=-flto
 
     - os: linux
       dist: trusty
@@ -33,7 +35,8 @@ matrix:
           packages: ['g++-6', 'libfuse-dev']
       env:
         - COMPILER=g++-6
-        - LTO_FLAG=-flto
+        - LDFLAGS=-flto
+        - CFLAGS=-flto
 
     - os: linux
       dist: trusty
@@ -44,7 +47,8 @@ matrix:
           packages: ['g++-7', 'libfuse-dev']
       env:
         - COMPILER=g++-7
-        - LTO_FLAG=-flto
+        - LDFLAGS=-flto
+        - CFLAGS=-flto
 
     - os: linux
       dist: trusty
@@ -55,7 +59,8 @@ matrix:
           packages: ['clang-3.9', 'libstdc++-4.9-dev', 'libfuse-dev']
       env:
         - COMPILER=clang++-3.9
-        - LTO_FLAG=
+        - CFLAGS=
+        - LDFLAGS=
 
     - os: linux
       dist: trusty
@@ -66,14 +71,16 @@ matrix:
           packages: ['clang-4.0', 'libstdc++-4.9-dev', 'libfuse-dev']
       env:
         - COMPILER=clang++-4.0
-        - LTO_FLAG=
+        - CFLAGS=
+        - LDFLAGS=
 
     - os: osx
       osx_image: xcode8.3
       compiler: clang
       env:
         - COMPILER=clang++
-        - LTO_FLAG=-flto
+        - CFLAGS=-flto
+        - LDFLAGS=-flto -I/usr/local/include/osxfuse/fuse
         - IMAGE="FUSE for macOS"
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
@@ -82,7 +89,8 @@ matrix:
       compiler: clang
       env:
         - COMPILER=clang++
-        - LTO_FLAG=-flto
+        - CFLAGS=-flto
+        - LFLAG=-flto -I/usr/local/include/osxfuse/fuse
         - IMAGE="FUSE for macOS"
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
@@ -91,5 +99,5 @@ install:
 git:
   submodules: true
 script:
-  - make -f Makefile.travis CXX=$COMPILER LTO_FLAG=$LTO_FLAG DEFINES=-D__CONTINUOUS_INTEGRATION__ VERBOSE=true 
+  - make -f Makefile.travis CXX=$COMPILER CFLAGS=$CFLAGS LDFLAGS=$LDFLAGS DEFINES=-D__CONTINUOUS_INTEGRATION__ VERBOSE=true 
 
