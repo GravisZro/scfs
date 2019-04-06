@@ -222,10 +222,17 @@ namespace scfs
     switch(type)
     {
       case Epath::root:      // root directory (always exists)
-
-        statbuf->st_atim =
-        statbuf->st_ctim =
-        statbuf->st_mtim = inittime;
+#if defined(__darwin__) || defined(BSD)
+        statbuf.st_ctimespec =
+        statbuf.st_mtimespec =
+        statbuf.st_atimespec = inittime;
+#elif defined(__linux__)
+        statbuf.st_ctim =
+        statbuf.st_mtim =
+        statbuf.st_atim = inittime;
+#else
+# error unknown OS
+#endif
         statbuf->st_mode = S_IFDIR | S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR | S_IXGRP | S_IXOTH;
         break;
 

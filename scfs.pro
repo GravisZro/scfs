@@ -23,7 +23,8 @@ QMAKE_CXXFLAGS_RELEASE += -ffunction-sections
 QMAKE_LFLAGS_RELEASE += -Wl,--gc-sections
 
 # libraries
-LIBS += -lfuse
+linux:LIBS += -lfuse
+mac:LIBS += -losxfuse
 
 QMAKE_LFLAGS += -flto
 QMAKE_CFLAGS += -flto -D_FILE_OFFSET_BITS=64
