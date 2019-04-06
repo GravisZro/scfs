@@ -87,7 +87,7 @@ matrix:
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
 install:
-  - if [ $TRAVIS_OS_NAME = "osx" ]; then curl -# -C - -o $IMAGE.dmg $IMAGEURL;ls -lh $IMAGE.dmg;exit 1;sudo hdiutil attach $IMAGE.dmg;sudo installer -package /Volumes/$IMAGE/$IMAGE.pkg -target /;sudo hdiutil detach /Volumes/$IMAGE; fi
+  - if [ $TRAVIS_OS_NAME = "osx" ]; then curl -L -# -C - -o $IMAGE.dmg $IMAGEURL;ls -lh $IMAGE.dmg;sudo hdiutil attach $IMAGE.dmg;sudo installer -package /Volumes/$IMAGE/$IMAGE.pkg -target /;sudo hdiutil detach /Volumes/$IMAGE; fi
 git:
   submodules: true
 script:
