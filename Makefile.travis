@@ -35,6 +35,8 @@ ifneq ($(shell getconf _XOPEN_VERSION 1>/dev/null 2>&1; echo $$?),0)
   $(shell for funcname in $(TESTLIST); do echo $(TESTFILE) | sed -e "s/\\\\n/\\n/g" > $(TESTFILEPATH) && ${CXX} ${CXXSTANDARD} ${TESTFILEPATH} 1>/dev/null 2>&1 && echo "#HAVE_$${funcname}" | tr '[:lower:]' '[:upper:]' | sed -e "s/HAVE/define HAVE/" >> $(OUTPUTFILE) ; done)
 endif
 
+PUT           = put
+STATICLIB     = $(BUILD_PATH)/libput.a
 INCLUDE_PATH  = -I$(SOURCE_PATH)
 INT_DEFINES   = $(DEFINES) -D_FILE_OFFSET_BITS=64
 INT_CFLAGS    = $(CFLAGS) $(INT_DEFINES) -pipe -g -Os -Wall -W -fPIC $(INCLUDE_PATH)
@@ -50,17 +52,28 @@ OBJS := $(OBJS:.cpp=.o)
 OBJS := $(foreach f,$(OBJS),$(BUILD_PATH)/$(f))
 SOURCES := $(foreach f,$(SOURCES),$(SOURCE_PATH)/$(f))
 
-$(BUILD_PATH)/%.o: $(SOURCE_PATH)/%.cpp
+$(BUILD_PATH)/%.o: $(SOURCE_PATH)/%.cpp OUTPUT_DIR
 	@echo [Compiling]: $<
 	$(QUIET) $(CXX) -c -o $@ $< $(CXXSTANDARD) $(INT_CXXFLAGS)
 
-$(BUILD_PATH)/%.o: $(SOURCE_PATH)/%.c
+$(BUILD_PATH)/%.o: $(SOURCE_PATH)/%.c OUTPUT_DIR
 	@echo [Compiling]: $<
 	$(QUIET) $(CC) -c -o $@ $< $(INT_CSTANDARD) $(INT_CFLAGS)
 
-$(TARGET): OUTPUT_DIR $(OBJS)
+$(TARGET): $(OBJS) $(STATICLIB)
 	@echo [ Linking ]: $@
 	$(QUIET) $(CXX) -o $@ $(OBJS) $(INT_LDFLAGS)
+
+$(STATICLIB): $(PUT)
+	@echo [Compiling]: $@
+	$(QUIET) make -f $(PUT)/Makefile.travis $(STATICLIB) \
+		SOURCE_PATH=$(PUT) \
+		BUILD_PATH=$(BUILD_PATH) \
+		VERBOSE=$(VERBOSE) \
+		CC=$(CC) \
+		CXX=$(CXX) \
+		CSTANDARD=$(CSTANDARD) \
+		CXXSTANDARD=$(CXXSTANDARD)
 
 OUTPUT_DIR:
 	$(QUIET) mkdir -p $(BUILD_PATH)

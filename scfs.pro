@@ -25,7 +25,10 @@ QMAKE_LFLAGS_RELEASE += -Wl,--gc-sections
 # libraries
 LIBS += -lfuse
 
-QMAKE_CFLAGS += -D_FILE_OFFSET_BITS=64
+QMAKE_LFLAGS += -flto
+QMAKE_CFLAGS += -flto -D_FILE_OFFSET_BITS=64
 QMAKE_CXXFLAGS += $$QMAKE_CFLAGS
 
 SOURCES += main.cpp
+
+include(put/put.pri)

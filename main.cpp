@@ -21,12 +21,11 @@
 #include <string>
 #include <system_error>
 
-namespace posix {
-  constexpr int success = 0;
-  constexpr int errorcode(std::errc err) { return 0 - int(err); }
-}
+#include <put/specialized/osdetect.h>
+#include <put/specialized/procstat.h>
+#include <put/cxxutils/posix_helpers.h>
 
-namespace circlefs
+namespace scfs
 {
   enum class Epath
   {
@@ -75,22 +74,17 @@ namespace circlefs
         type = Epath::file;
       }
 
-      pw_ent = ::getpwnam(dir.c_str());
+      pw_ent = posix::getpwnam(dir.c_str());
     }
   }
 
   void clean_set(std::set<file_entry_t>& dir_set) noexcept
   {
-    char path[PATH_MAX + 1];
-    struct stat info;
-
+    process_state_t data;
     auto pos = dir_set.begin();
     while(pos != dir_set.end())
     {
-//      ::procstat()
-      // Linux only
-      std::snprintf(path, PATH_MAX, "/proc/%d", pos->pid);
-      if(stat( path, &info ) != posix::success || !(info.st_mode & S_IFDIR)) // if process
+      if(::procstat(pos->pid, data))
         pos = dir_set.erase(pos);
       else
         ++pos;
@@ -134,7 +128,7 @@ namespace circlefs
             pos = files.erase(pos);
           else
           {
-            struct passwd* p = ::getpwuid(pos->first);
+            struct passwd* p = posix::getpwuid(pos->first);
             if(p != NULL)
               filler(buf, p->pw_name, NULL, offset);
             ++pos;
@@ -147,7 +141,7 @@ namespace circlefs
       {
         auto pos = files.find(pw_ent->pw_uid);
         if(pos == files.end()) // username has no files
-          return posix::errorcode(std::errc::no_such_file_or_directory);
+          return posix::errorval(std::errc::no_such_file_or_directory);
 
         clean_set(pos->second);
 
@@ -161,14 +155,14 @@ namespace circlefs
         assert(false);
     }
 
-    return posix::success;
+    return posix::success_response;
   }
 
   int mknod(const char* path, mode_t mode, dev_t rdev) noexcept
   {
     (void)rdev;
     if(!(mode & S_IFSOCK) || mode & (S_ISUID | S_ISGID)) // if not a socket or execution flag is set
-      return posix::errorcode(std::errc::permission_denied);
+      return posix::errorval(std::errc::permission_denied);
 
     Epath type;
     passwd* pw_ent = NULL;
@@ -181,13 +175,13 @@ namespace circlefs
 
     if(fuse_get_context()->uid && // if NOT root AND
        pw_ent->pw_uid != fuse_get_context()->uid) // UID doesn't match
-      return posix::errorcode(std::errc::invalid_argument);
+      return posix::errorval(std::errc::invalid_argument);
 
     switch(type)
     {
       case Epath::root: // root directory - cannot make root!
       case Epath::directory: // directory (based on username) - cannot make directory!
-        return posix::errorcode(std::errc::permission_denied);
+        return posix::errorval(std::errc::permission_denied);
 
       case Epath::file: // create a node file!
         fuse_context* ctx = fuse_get_context();
@@ -199,14 +193,21 @@ namespace circlefs
         stat.st_uid = pw_ent->pw_uid;
         stat.st_gid = pw_ent->pw_gid;
         stat.st_mode = mode;
+#if defined(__darwin__) || defined(BSD)
+        stat.st_ctimespec =
+        stat.st_mtimespec =
+        stat.st_atimespec = time;
+#elif defined(__linux__)
         stat.st_ctim =
         stat.st_mtim =
         stat.st_atim = time;
-
+#else
+# error unknown OS
+#endif
         dir.insert({ filename, ctx->pid, stat });
         break;
     }
-    return posix::success;
+    return posix::success_response;
   }
 
   int getattr(const char* path, struct stat* statbuf) noexcept
@@ -231,13 +232,13 @@ namespace circlefs
       case Epath::directory: // username (exists if username exists)
         statbuf->st_mode = S_IFDIR | S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR | S_IXGRP | S_IXOTH;
         if(pw_ent == nullptr)
-          return posix::errorcode(std::errc::no_such_file_or_directory);
+          return posix::errorval(std::errc::no_such_file_or_directory);
         break;
 
       case Epath::file:
         auto pos = files.find(pw_ent->pw_uid);
         if(pos == files.end()) // username not registered
-          return posix::errorcode(std::errc::no_such_file_or_directory);
+          return posix::errorval(std::errc::no_such_file_or_directory);
 
         clean_set(pos->second);
 
@@ -246,13 +247,13 @@ namespace circlefs
           if(entry.name == filename)
           {
             *statbuf = entry.stat;
-            return posix::success;
+            return posix::success_response;
           }
         }
 
-        return posix::errorcode(std::errc::no_such_file_or_directory); // no file matched
+        return posix::errorval(std::errc::no_such_file_or_directory); // no file matched
     }
-    return posix::success;
+    return posix::success_response;
   }
 }
 
@@ -260,11 +261,11 @@ int main(int argc, char *argv[])
 {
   static struct fuse_operations ops;
 
-  clock_gettime(CLOCK_REALTIME, &circlefs::inittime);
+  clock_gettime(CLOCK_REALTIME, &scfs::inittime);
 
-  ops.readdir = circlefs::readdir;
-  ops.mknod   = circlefs::mknod;
-  ops.getattr = circlefs::getattr;
+  ops.readdir = scfs::readdir;
+  ops.mknod   = scfs::mknod;
+  ops.getattr = scfs::getattr;
 
   return fuse_main(argc, argv, &ops, NULL);
 }
