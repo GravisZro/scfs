@@ -88,7 +88,6 @@ matrix:
 
 install:
   - if [ $TRAVIS_OS_NAME = "osx" ]; then curl $IMAGEURL -o $IMAGE.dmg; fi
-#sudo hdiutil attach $IMAGE.dmg;sudo installer -package /Volumes/$IMAGE/$IMAGE.pkg -target /; sudo hdiutil detach /Volumes/$IMAGE; fi
 git:
   submodules: true
 script:
