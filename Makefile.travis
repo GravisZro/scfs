@@ -37,7 +37,7 @@ endif
 
 PUT           = put
 STATICLIB     = $(BUILD_PATH)/libput.a
-INCLUDE_PATH  = -I$(SOURCE_PATH)
+INCLUDE_PATH  = -I$(SOURCE_PATH) $(EXTINCLUDEPATH)
 INT_DEFINES   = $(DEFINES) -D_FILE_OFFSET_BITS=64
 INT_CFLAGS    = $(CFLAGS) $(INT_DEFINES) -pipe -g -Os -Wall -W -fPIC $(INCLUDE_PATH)
 INT_CXXFLAGS  = $(INT_CFLAGS) $(CXXFLAGS) -fno-exceptions -fno-rtti

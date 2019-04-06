@@ -11,8 +11,6 @@ matrix:
           packages: ['g++-4.9', 'libfuse-dev']
       env:
         - COMPILER=g++-4.9
-        - CFLAGS="-flto"
-        - LDFLAGS="-flto"
 
     - os: linux
       dist: trusty
@@ -23,8 +21,6 @@ matrix:
           packages: ['g++-5', 'libfuse-dev']
       env:
         - COMPILER=g++-5
-        - CFLAGS="-flto"
-        - LDFLAGS="-flto"
 
     - os: linux
       dist: trusty
@@ -35,8 +31,6 @@ matrix:
           packages: ['g++-6', 'libfuse-dev']
       env:
         - COMPILER=g++-6
-        - CFLAGS="-flto"
-        - LDFLAGS="-flto"
 
     - os: linux
       dist: trusty
@@ -47,8 +41,6 @@ matrix:
           packages: ['g++-7', 'libfuse-dev']
       env:
         - COMPILER=g++-7
-        - CFLAGS="-flto"
-        - LDFLAGS="-flto"
 
     - os: linux
       dist: trusty
@@ -59,8 +51,6 @@ matrix:
           packages: ['clang-3.9', 'libstdc++-4.9-dev', 'libfuse-dev']
       env:
         - COMPILER=clang++-3.9
-        - CFLAGS=
-        - LDFLAGS=
 
     - os: linux
       dist: trusty
@@ -71,16 +61,13 @@ matrix:
           packages: ['clang-4.0', 'libstdc++-4.9-dev', 'libfuse-dev']
       env:
         - COMPILER=clang++-4.0
-        - CFLAGS=
-        - LDFLAGS=
 
     - os: osx
       osx_image: xcode8.3
       compiler: clang
       env:
         - COMPILER=clang++
-        - CFLAGS="-flto -I/usr/local/include/osxfuse/fuse"
-        - LDFLAGS="-flto"
+        - INCPATH="-I/usr/local/include/osxfuse/fuse"
         - IMAGE="FUSE for macOS"
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
@@ -89,8 +76,7 @@ matrix:
       compiler: clang
       env:
         - COMPILER=clang++
-        - CFLAGS="-flto -I/usr/local/include/osxfuse/fuse"
-        - LDFLAGS="-flto"
+        - INCPATH="-I/usr/local/include/osxfuse/fuse"
         - IMAGE="FUSE for macOS"
         - IMAGEURL=https://github.com/osxfuse/osxfuse/releases/download/osxfuse-3.8.3/osxfuse-3.8.3.dmg
 
@@ -100,5 +86,5 @@ git:
   submodules: true
 script:
   - ls -la put
-  - make -f Makefile.travis CXX=$COMPILER CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" DEFINES=-D__CONTINUOUS_INTEGRATION__ VERBOSE=true 
+  - make -f Makefile.travis CXX=$COMPILER EXTINCPATH="$INCPATH" DEFINES=-D__CONTINUOUS_INTEGRATION__ VERBOSE=true 
 
