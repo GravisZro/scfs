@@ -26,6 +26,10 @@ ifndef BUILD_PATH
   BUILD_PATH=$(SOURCE_PATH)/bin
 endif
 
+ifndef LDFLAGS
+  LFFLAGS=-lfuse
+endif
+
 ifneq ($(shell getconf _XOPEN_VERSION 1>/dev/null 2>&1; echo $$?),0)
   OUTPUTFILE:=posix_features.h
   TESTLIST:=atexit memmove strerror strnlen atoll strtof strtold strtoll strtoul strtoull snprintf faccessat fexecve fchdir seteuid setegid sigqueue killpg
