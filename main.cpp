@@ -26,8 +26,8 @@
 #include <put/cxxutils/posix_helpers.h>
 
 
-#if !defined(_XOPEN_SOURCE) || _XOPEN_SOURCE < 600 || \
-  defined(__darwin__) || defined(BSD)
+#if (!defined(_XOPEN_SOURCE) || _XOPEN_SOURCE < 600) && \
+    (defined(__darwin__) || defined(BSD))
 # define st_ctim st_ctimespec
 # define st_mtim st_mtimespec
 # define st_atim st_atimespec
