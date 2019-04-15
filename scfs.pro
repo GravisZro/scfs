@@ -20,14 +20,14 @@ QMAKE_CXXFLAGS_RELEASE += -fstack-protector-strong
 # optimizations
 QMAKE_CXXFLAGS_RELEASE += -fdata-sections
 QMAKE_CXXFLAGS_RELEASE += -ffunction-sections
-QMAKE_LFLAGS_RELEASE += -Wl,--gc-sections
+QMAKE_LFLAGS_RELEASE += -Wl,--gc-sections -flto
+QMAKE_CFLAGS_RELEASE += -flto
 
 # libraries
 linux:LIBS += -lfuse
 mac:LIBS += -losxfuse
 
-QMAKE_LFLAGS += -flto
-QMAKE_CFLAGS += -flto -D_FILE_OFFSET_BITS=64
+QMAKE_CFLAGS += -D_FILE_OFFSET_BITS=64
 QMAKE_CXXFLAGS += $$QMAKE_CFLAGS
 
 SOURCES += main.cpp
