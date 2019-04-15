@@ -1,5 +1,6 @@
 SCFS is a component of [System X](https://github.com/GravisZro/SystemX)
 # Service Connector File System
+build status: [![Build Status](https://travis-ci.org/GravisZro/scfs.svg?branch=master)](https://travis-ci.org/GravisZro/scfs)
 SCFS is a FUSE VFS that manages socket files for processes.  It's intended use is to provide a permissions based [IPC](https://en.wikipedia.org/wiki/Inter-process_communication) interface between daemons and client programs.
 
 # Setup
