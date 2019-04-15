@@ -25,8 +25,19 @@
 #include <put/specialized/procstat.h>
 #include <put/cxxutils/posix_helpers.h>
 
+
+#if !defined(_XOPEN_SOURCE) || _XOPEN_SOURCE < 600 || \
+  defined(__darwin__) || defined(BSD)
+# define st_ctim st_ctimespec
+# define st_mtim st_mtimespec
+# define st_atim st_atimespec
+#endif
+
 namespace scfs
 {
+  inline int return_error(posix::errc val) noexcept
+    { return 0 - int(val); }
+
   enum class Epath
   {
     root,
@@ -49,8 +60,8 @@ namespace scfs
 
   void deconstruct_path(const char* path, Epath& type, passwd*& pw_ent, std::string& filename) noexcept
   {
-    const char* dir_pos = std::strchr(path, '/') + 1;
-    const char* file_pos = std::strchr(dir_pos, '/');
+    const char* dir_pos = posix::strchr(path, '/') + 1;
+    const char* file_pos = posix::strchr(dir_pos, '/');
     std::string dir;
 
     if(path[1] == '\0')
@@ -84,25 +95,13 @@ namespace scfs
     auto pos = dir_set.begin();
     while(pos != dir_set.end())
     {
-      if(::procstat(pos->pid, data))
+      if(!::procstat(pos->pid, data))
         pos = dir_set.erase(pos);
       else
         ++pos;
     }
   }
-/*
-  struct timespec get_oldest(std::set<file_entry_t>& dir_set)
-  {
-    struct timespec oldest = dir_set.begin()->stat.st_atim;
-    auto pos = dir_set.begin();
-    while(pos != dir_set.end())
-    {
-      if(pos->stat.st_atim.tv_sec < oldest.tv_sec)
-        oldest.tv_sec = pos->stat.st_atim.tv_sec;
-    }
-    return oldest;
-  }
-*/
+
   int readdir(const char* path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fileInfo) noexcept
   {
     (void)fileInfo;
@@ -141,7 +140,7 @@ namespace scfs
       {
         auto pos = files.find(pw_ent->pw_uid);
         if(pos == files.end()) // username has no files
-          return posix::errorval(std::errc::no_such_file_or_directory);
+          return return_error(posix::errc::no_such_file_or_directory);
 
         clean_set(pos->second);
 
@@ -162,7 +161,7 @@ namespace scfs
   {
     (void)rdev;
     if(!(mode & S_IFSOCK) || mode & (S_ISUID | S_ISGID)) // if not a socket or execution flag is set
-      return posix::errorval(std::errc::permission_denied);
+      return return_error(posix::errc::permission_denied);
 
     Epath type;
     passwd* pw_ent = NULL;
@@ -175,13 +174,13 @@ namespace scfs
 
     if(fuse_get_context()->uid && // if NOT root AND
        pw_ent->pw_uid != fuse_get_context()->uid) // UID doesn't match
-      return posix::errorval(std::errc::invalid_argument);
+      return return_error(posix::errc::invalid_argument);
 
     switch(type)
     {
       case Epath::root: // root directory - cannot make root!
       case Epath::directory: // directory (based on username) - cannot make directory!
-        return posix::errorval(std::errc::permission_denied);
+        return return_error(posix::errc::permission_denied);
 
       case Epath::file: // create a node file!
         fuse_context* ctx = fuse_get_context();
@@ -193,17 +192,10 @@ namespace scfs
         stat.st_uid = pw_ent->pw_uid;
         stat.st_gid = pw_ent->pw_gid;
         stat.st_mode = mode;
-#if defined(__darwin__) || defined(BSD)
-        stat.st_ctimespec =
-        stat.st_mtimespec =
-        stat.st_atimespec = time;
-#elif defined(__linux__)
         stat.st_ctim =
         stat.st_mtim =
         stat.st_atim = time;
-#else
-# error unknown OS
-#endif
+
         dir.insert({ filename, ctx->pid, stat });
         break;
     }
@@ -222,30 +214,27 @@ namespace scfs
     switch(type)
     {
       case Epath::root:      // root directory (always exists)
-#if defined(__darwin__) || defined(BSD)
-        statbuf->st_ctimespec =
-        statbuf->st_mtimespec =
-        statbuf->st_atimespec = inittime;
-#elif defined(__linux__)
+
         statbuf->st_ctim =
         statbuf->st_mtim =
         statbuf->st_atim = inittime;
-#else
-# error unknown OS
-#endif
-        statbuf->st_mode = S_IFDIR | S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR | S_IXGRP | S_IXOTH;
+        statbuf->st_mode = S_IFDIR | // set as directory
+                           S_IRUSR | S_IRGRP | S_IROTH | // set readable to everyone
+                           S_IXUSR | S_IXGRP | S_IXOTH; // set executable to everyone
         break;
 
       case Epath::directory: // username (exists if username exists)
-        statbuf->st_mode = S_IFDIR | S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR | S_IXGRP | S_IXOTH;
+        statbuf->st_mode = S_IFDIR | // set as directory
+                           S_IRUSR | S_IRGRP | S_IROTH | // set readable to everyone
+                           S_IXUSR | S_IXGRP | S_IXOTH; // set executable to everyone
         if(pw_ent == nullptr)
-          return posix::errorval(std::errc::no_such_file_or_directory);
+          return return_error(posix::errc::no_such_file_or_directory);
         break;
 
       case Epath::file:
         auto pos = files.find(pw_ent->pw_uid);
         if(pos == files.end()) // username not registered
-          return posix::errorval(std::errc::no_such_file_or_directory);
+          return return_error(posix::errc::no_such_file_or_directory);
 
         clean_set(pos->second);
 
@@ -258,7 +247,7 @@ namespace scfs
           }
         }
 
-        return posix::errorval(std::errc::no_such_file_or_directory); // no file matched
+        return return_error(posix::errc::no_such_file_or_directory); // no file matched
     }
     return posix::success_response;
   }
