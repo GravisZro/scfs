@@ -26,10 +26,6 @@ ifndef BUILD_PATH
   BUILD_PATH=$(SOURCE_PATH)/bin
 endif
 
-ifndef LDFLAGS
-  LFFLAGS=-lfuse
-endif
-
 ifneq ($(shell getconf _XOPEN_VERSION 1>/dev/null 2>&1; echo $$?),0)
   OUTPUTFILE:=posix_features.h
   TESTLIST:=atexit memmove strerror strnlen atoll strtof strtold strtoll strtoul strtoull snprintf faccessat fexecve fchdir seteuid setegid sigqueue killpg
@@ -49,12 +45,15 @@ INT_LDFLAGS   = $(STATICLIB) $(LDFLAGS)
 
 TARGET        = scfs
 SOURCES       = main.cpp
+UNITSOURCES   = units/socket_creation_unit.cpp
 
 OBJS := $(SOURCES:.s=.o)
 OBJS := $(OBJS:.c=.o)
 OBJS := $(OBJS:.cpp=.o)
 OBJS := $(foreach f,$(OBJS),$(BUILD_PATH)/$(f))
 SOURCES := $(foreach f,$(SOURCES),$(SOURCE_PATH)/$(f))
+UNITOBJS := $(foreach f,$(UNITSOURCES:.cpp=.o),$(BUILD_PATH)/$(f))
+UNITS := $(foreach f,$(UNITSOURCES:.cpp=.elf),$(BUILD_PATH)/$(f))
 
 $(BUILD_PATH)/%.o: $(SOURCE_PATH)/%.cpp OUTPUT_DIR
 	@echo [Compiling]: $<
@@ -64,9 +63,16 @@ $(BUILD_PATH)/%.o: $(SOURCE_PATH)/%.c OUTPUT_DIR
 	@echo [Compiling]: $<
 	$(QUIET) $(CC) -c -o $@ $< $(INT_CSTANDARD) $(INT_CFLAGS)
 
+all: $(TARGET) $(UNITS)
+	@echo [ Completed ]: $@
+
 $(TARGET): $(OBJS) $(STATICLIB)
 	@echo [ Linking ]: $@
-	$(QUIET) $(CXX) -o $@ $(OBJS) $(INT_LDFLAGS)
+	$(QUIET) $(CXX) -o $@ $(OBJS) $(INT_LDFLAGS) -lfuse
+
+$(BUILD_PATH)/%.elf: $(BUILD_PATH)/%.o $(STATICLIB)
+	@echo [ Linking ]: $@
+	$(QUIET) $(CXX) -o $@ $< $(INT_LDFLAGS)
 
 $(STATICLIB): $(PUT)
 	@echo [Compiling]: $@
@@ -81,6 +87,7 @@ $(STATICLIB): $(PUT)
 
 OUTPUT_DIR:
 	$(QUIET) mkdir -p $(BUILD_PATH)
+	$(QUIET) mkdir -p $(BUILD_PATH)/units
 
 clean:
 	$(QUIET) rm -f $(TARGET)
