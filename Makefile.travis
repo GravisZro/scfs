@@ -64,7 +64,7 @@ $(BUILD_PATH)/%.o: $(SOURCE_PATH)/%.c OUTPUT_DIR
 	$(QUIET) $(CC) -c -o $@ $< $(INT_CSTANDARD) $(INT_CFLAGS)
 
 all: $(TARGET) $(UNITS)
-	@echo [ Completed ]: $@
+	@echo [Completed]: $@
 
 $(TARGET): $(OBJS) $(STATICLIB)
 	@echo [ Linking ]: $@
