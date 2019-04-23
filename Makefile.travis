@@ -26,6 +26,10 @@ ifndef BUILD_PATH
   BUILD_PATH=$(SOURCE_PATH)/bin
 endif
 
+ifndef LDFLAGS
+  LDFLAGS=-lfuse
+endif
+
 ifneq ($(shell getconf _XOPEN_VERSION 1>/dev/null 2>&1; echo $$?),0)
   OUTPUTFILE:=posix_features.h
   TESTLIST:=atexit memmove strerror strnlen atoll strtof strtold strtoll strtoul strtoull snprintf faccessat fexecve fchdir seteuid setegid sigqueue killpg
@@ -68,11 +72,11 @@ all: $(TARGET) $(UNITS)
 
 $(TARGET): $(OBJS) $(STATICLIB)
 	@echo [ Linking ]: $@
-	$(QUIET) $(CXX) -o $@ $(OBJS) $(INT_LDFLAGS) -lfuse
+	$(QUIET) $(CXX) -o $@ $(OBJS) $(INT_LDFLAGS)
 
 $(BUILD_PATH)/%.elf: $(BUILD_PATH)/%.o $(STATICLIB)
 	@echo [ Linking ]: $@
-	$(QUIET) $(CXX) -o $@ $< $(INT_LDFLAGS)
+	$(QUIET) $(CXX) -o $@ $< $(STATICLIB)
 
 $(STATICLIB): $(PUT)
 	@echo [Compiling]: $@
